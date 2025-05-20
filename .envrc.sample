@@ -4,3 +4,5 @@ export DATABASE_URL="postgres://localhost/$PGDATABASE"
 export GOOSE_MIGRATION_DIR=db/migrations
 export GOOSE_DRIVER=postgres
 export GOOSE_DBSTRING="$DATABASE_URL"
+
+export COINAPI_API_KEY=
