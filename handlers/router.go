@@ -15,5 +15,9 @@ func Router() http.Handler {
 
 	pages := PageController()
 	r.Get("/", pages.Index)
+
+	fs := http.Dir("./assets/dist")
+	r.Handle("/assets/*", http.StripPrefix("/assets", http.FileServer(fs)))
+
 	return r
 }
