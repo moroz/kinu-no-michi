@@ -1,7 +1,14 @@
 package templates
 
-templ PagesIndex() {
+import "github.com/shopspring/decimal"
+
+templ PagesIndex(currentRate *decimal.Decimal) {
 	@Layout("Hello") {
 		<p>This is rendered by Templ</p>
+		if currentRate != nil {
+			<p>{ currentRate.String() }</p>
+		} else {
+			<p>No data available</p>
+		}
 	}
 }
