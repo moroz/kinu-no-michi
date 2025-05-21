@@ -5,14 +5,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/shopspring/decimal"
+	"github.com/moroz/kinu-no-michi/lib/coinapi"
 )
 
-type ExchangeRateService interface {
-	GetLatestRate() *decimal.Decimal
-}
-
-func Router(rs ExchangeRateService) http.Handler {
+func Router(rs coinapi.ExchangeRateService) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)

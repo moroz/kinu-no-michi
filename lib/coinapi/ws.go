@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
-	"time"
 
 	"github.com/shopspring/decimal"
 	"golang.org/x/net/websocket"
@@ -36,13 +35,6 @@ type coinapiWSClient struct {
 	lastEvent *ExchangeRateEvent
 	done      chan struct{}
 	conn      *websocket.Conn
-}
-
-type ExchangeRateEvent struct {
-	Time         time.Time
-	Rate         decimal.Decimal
-	AssetIDBase  string `json:"asset_id_base"`
-	AssetIDQuote string `json:"asset_id_quote"`
 }
 
 func NewCoinAPIWSClient(token string) *coinapiWSClient {

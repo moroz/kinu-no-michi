@@ -14,7 +14,7 @@ const LISTEN_ON = ":3000"
 var COINAPI_API_KEY = config.MustGetenv("COINAPI_API_KEY")
 
 func main() {
-	restClient, err := coinapi.NewCoinAPIRESTClient(COINAPI_API_KEY)
+	restClient, err := coinapi.NewCoinAPIRESTClient(COINAPI_API_KEY, 60000)
 	if err != nil {
 		log.Fatal(err)
 	}

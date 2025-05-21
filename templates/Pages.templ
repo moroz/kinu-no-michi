@@ -1,12 +1,12 @@
 package templates
 
-import "github.com/shopspring/decimal"
+import "github.com/moroz/kinu-no-michi/lib/coinapi"
 
-templ PagesIndex(currentRate *decimal.Decimal) {
+templ PagesIndex(currentRate *coinapi.ExchangeRate) {
 	@Layout("Hello") {
 		<p>This is rendered by Templ</p>
 		if currentRate != nil {
-			<p>{ currentRate.String() }</p>
+			<p>1 { currentRate.Base } = { currentRate.Rate.String() } { currentRate.Quote }</p>
 		} else {
 			<p>No data available</p>
 		}
