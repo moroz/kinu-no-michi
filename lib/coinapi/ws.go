@@ -32,7 +32,7 @@ type subscribeMessage struct {
 type coinapiWSClient struct {
 	token     string // API token
 	mu        sync.RWMutex
-	lastEvent *ExchangeRateEvent
+	lastEvent *exchangeRateEvent
 	done      chan struct{}
 	conn      *websocket.Conn
 }
@@ -43,7 +43,7 @@ func NewCoinAPIWSClient(token string) *coinapiWSClient {
 	}
 }
 
-func (c *coinapiWSClient) updateLastEvent(e *ExchangeRateEvent) {
+func (c *coinapiWSClient) updateLastEvent(e *exchangeRateEvent) {
 	if e == nil {
 		return
 	}
@@ -82,7 +82,7 @@ func (c *coinapiWSClient) loop() {
 				return
 			}
 
-			var payload ExchangeRateEvent
+			var payload exchangeRateEvent
 			err = json.Unmarshal(buf[:n], &payload)
 			if err != nil {
 				log.Printf("Failed to parse incoming message as JSON: %s", err)

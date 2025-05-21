@@ -5,15 +5,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/moroz/kinu-no-michi/config"
-	"github.com/moroz/kinu-no-michi/lib/coinapi"
 	"github.com/shopspring/decimal"
 )
 
 var COINAPI_API_KEY = config.MustGetenv("COINAPI_API_KEY")
 
 const baseURL = "https://api-realtime.exrates.coinapi.io/v1/exchangerate"
+
+type exchangeRateEvent struct {
+	Time         time.Time
+	Rate         decimal.Decimal
+	AssetIDBase  string `json:"asset_id_base"`
+	AssetIDQuote string `json:"asset_id_quote"`
+}
 
 func fetchExchangRate(base, quote string) (*http.Response, error) {
 	url := fmt.Sprintf(`%s/%s/%s`, baseURL, base, quote)
@@ -35,7 +42,7 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	var event coinapi.ExchangeRateEvent
+	var event exchangeRateEvent
 	err = json.NewDecoder(resp.Body).Decode(&event)
 	if err != nil {
 		log.Fatal(err)

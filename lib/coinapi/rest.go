@@ -95,7 +95,7 @@ func (c *coinapiRestClient) refreshRate(base, quote string) (*ExchangeRate, erro
 	}
 	defer resp.Body.Close()
 
-	var event ExchangeRateEvent
+	var event exchangeRateEvent
 	err = json.NewDecoder(resp.Body).Decode(&event)
 	if err != nil {
 		return nil, err
