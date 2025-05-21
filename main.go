@@ -14,13 +14,12 @@ const LISTEN_ON = ":3000"
 var COINAPI_API_KEY = config.MustGetenv("COINAPI_API_KEY")
 
 func main() {
-	wsClient := coinapi.NewCoinAPIWSClient(COINAPI_API_KEY)
-	err := wsClient.Start()
+	restClient, err := coinapi.NewCoinAPIRESTClient(COINAPI_API_KEY)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := handlers.Router(wsClient)
+	r := handlers.Router(restClient)
 
 	log.Printf("Listening on %s", LISTEN_ON)
 
