@@ -14,6 +14,7 @@ type Product struct {
 	Slug         string
 	BasePriceEur pgtype.Numeric
 	Description  pgtype.Text
+	ImageUrl     pgtype.Text
 	InsertedAt   pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 }

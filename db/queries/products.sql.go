@@ -10,7 +10,7 @@ import (
 )
 
 const listProducts = `-- name: ListProducts :many
-select id, title, slug, base_price_eur, description, inserted_at, updated_at from products order by id desc
+select id, title, slug, base_price_eur, description, image_url, inserted_at, updated_at from products order by id desc
 `
 
 func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
@@ -28,6 +28,7 @@ func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
 			&i.Slug,
 			&i.BasePriceEur,
 			&i.Description,
+			&i.ImageUrl,
 			&i.InsertedAt,
 			&i.UpdatedAt,
 		); err != nil {

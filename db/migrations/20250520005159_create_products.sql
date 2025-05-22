@@ -6,6 +6,7 @@ create table products (
   slug text not null unique,
   base_price_eur decimal not null default 0,
   description text,
+  image_url text,
   inserted_at timestamp(0) not null default (now() at time zone 'utc'),
   updated_at timestamp(0) not null default (now() at time zone 'utc')
 );
