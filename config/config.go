@@ -12,3 +12,5 @@ func MustGetenv(key string) string {
 	}
 	return val
 }
+
+var DATABASE_URL = MustGetenv("DATABASE_URL")

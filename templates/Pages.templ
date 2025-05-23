@@ -1,14 +1,20 @@
 package templates
 
-import "github.com/moroz/kinu-no-michi/lib/coinapi"
-
-templ PagesIndex(currentRate *coinapi.ExchangeRate) {
+templ PagesIndex(props *ProductsIndexProps) {
 	@Layout("Hello") {
 		<p>This is rendered by Templ</p>
-		if currentRate != nil {
-			<p>1 { currentRate.Base } = { currentRate.Rate.String() } { currentRate.Quote }</p>
+		if props.ExchangeRate != nil {
+			<p>1 { props.ExchangeRate.Base } = { props.ExchangeRate.Rate.String() } { props.ExchangeRate.Quote }</p>
 		} else {
 			<p>No data available</p>
+		}
+		for _, item := range props.Products {
+			<article>
+				if item.ImageUrl != nil {
+					<img src={ *item.ImageUrl }/>
+				}
+				<h2>{ item.Title } &euro;{ item.BasePriceEur.String() }</h2>
+			</article>
 		}
 	}
 }
