@@ -5,16 +5,17 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/moroz/kinu-no-michi/db/queries"
 	"github.com/moroz/kinu-no-michi/lib/coinapi"
 )
 
-func Router(rs coinapi.ExchangeRateService) http.Handler {
+func Router(db queries.DBTX, rs coinapi.ExchangeRateService) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
-	pages := PageController(rs)
+	pages := PageController(db, rs)
 	r.Get("/", pages.Index)
 
 	fs := http.Dir("./assets/dist")

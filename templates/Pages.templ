@@ -1,14 +1,33 @@
 package templates
 
-import "github.com/moroz/kinu-no-michi/lib/coinapi"
+import (
+	"github.com/moroz/kinu-no-michi/db/queries"
+	"github.com/moroz/kinu-no-michi/lib/coinapi"
+)
 
-templ PagesIndex(currentRate *coinapi.ExchangeRate) {
+type PagesIndexProps struct {
+	Products []*queries.Product
+	Rate     *coinapi.ExchangeRate
+}
+
+templ PagesIndex(props *PagesIndexProps) {
 	@Layout("Hello") {
-		<p>This is rendered by Templ</p>
-		if currentRate != nil {
-			<p>1 { currentRate.Base } = { currentRate.Rate.String() } { currentRate.Quote }</p>
-		} else {
-			<p>No data available</p>
-		}
+		<div class="grid grid-cols-4 gap-4 my-8 mx-auto w-[1200px]">
+			for _, product := range props.Products {
+				<article class="aspect-[1/1.618] border overflow-hidden rounded-sm flex flex-col">
+					<div class="aspect-square overflow-hidden bg-gray-100 position-relative">
+						if product.ImageUrl != nil {
+							<img src={ *product.ImageUrl } class="position-absolute inset-0 w-full h-full object-cover"/>
+						}
+					</div>
+					<footer class="text-center flex flex-1 flex-col gap-1 items-center justify-center">
+						<span>{ product.Title }</span>
+						<span>&euro;{ product.BasePriceEur.String() }</span>
+						<span>{ fiatToBTC(product.BasePriceEur, props.Rate.Rate) } BTC</span>
+						<button class="bg-blue-600 text-white font-bold px-6 py-2 mt-4 rounded-sm">Add to cart</button>
+					</footer>
+				</article>
+			}
+		</div>
 	}
 }

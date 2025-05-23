@@ -10,3 +10,18 @@ sql:
         out: "db/queries"
         sql_driver: "github.com/jackc/pgx/v5"
         sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true
+        emit_result_struct_pointers: true
+
+        overrides:
+          - db_type: "pg_catalog.numeric"
+            go_type:
+              import: "github.com/shopspring/decimal"
+              type: "Decimal"
+
+          - db_type: "pg_catalog.numeric"
+            nullable: true
+            go_type:
+              import: "github.com/shopspring/decimal"
+              pointer: true
+              type: "Decimal"

@@ -13,13 +13,13 @@ const listProducts = `-- name: ListProducts :many
 select id, title, slug, base_price_eur, description, image_url, inserted_at, updated_at from products order by id desc
 `
 
-func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
+func (q *Queries) ListProducts(ctx context.Context) ([]*Product, error) {
 	rows, err := q.db.Query(ctx, listProducts)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Product
+	var items []*Product
 	for rows.Next() {
 		var i Product
 		if err := rows.Scan(
@@ -34,7 +34,7 @@ func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -16,7 +16,7 @@ templ RootLayout(title string) {
 
 templ Layout(title string) {
 	@RootLayout(title) {
-		<div class="flex flex-col h-screen">
+		<div class="flex flex-col min-h-screen">
 			<header class="h-[80px] bg-[salmon] navbar flex items-center justify-between w-full px-4">
 				<h1 class="text-2xl lg:text-4xl">
 					<a href="/">

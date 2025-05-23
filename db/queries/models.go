@@ -6,15 +6,16 @@ package queries
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 type Product struct {
 	ID           pgtype.UUID
 	Title        string
 	Slug         string
-	BasePriceEur pgtype.Numeric
-	Description  pgtype.Text
-	ImageUrl     pgtype.Text
+	BasePriceEur decimal.Decimal
+	Description  *string
+	ImageUrl     *string
 	InsertedAt   pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 }
