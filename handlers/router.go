@@ -7,9 +7,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/moroz/kinu-no-michi/db/queries"
 	"github.com/moroz/kinu-no-michi/lib/coinapi"
+	"github.com/moroz/kinu-no-michi/lib/cookies"
 )
 
-func Router(db queries.DBTX, rs coinapi.ExchangeRateService) http.Handler {
+func Router(db queries.DBTX, rs coinapi.ExchangeRateService, cookieStore cookies.SessionStore) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
