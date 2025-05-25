@@ -7,6 +7,8 @@ require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/shopspring/decimal v1.4.0
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/crypto v0.38.0
 	golang.org/x/net v0.40.0
 	modernc.org/sqlite v1.37.1
 )
@@ -37,8 +39,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rjeczalik/notify v0.9.3 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect

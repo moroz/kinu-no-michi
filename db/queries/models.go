@@ -5,12 +5,28 @@
 package queries
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
+type Cart struct {
+	ID         uuid.UUID
+	InsertedAt pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+}
+
+type CartItem struct {
+	ID         uuid.UUID
+	CartID     uuid.UUID
+	ProductID  uuid.UUID
+	Quantity   decimal.Decimal
+	InsertedAt pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+}
+
 type Product struct {
-	ID           pgtype.UUID
+	ID           uuid.UUID
 	Title        string
 	Slug         string
 	BasePriceEur decimal.Decimal

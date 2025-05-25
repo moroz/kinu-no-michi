@@ -1,5 +1,7 @@
 export PGDATABASE=kinu_no_michi_dev
-export DATABASE_URL="postgres://localhost/$PGDATABASE"
+export TEST_DATABASE=kinu_no_michi_test
+export DATABASE_URL="postgres://postgres:postgres@localhost/$PGDATABASE"
+export TEST_DATABASE_URL="postgres://postgres:postgres@localhost/$TEST_DATABASE"
 
 export GOOSE_MIGRATION_DIR=db/migrations
 export GOOSE_DRIVER=postgres

@@ -18,16 +18,16 @@ type coinapiRestClient struct {
 }
 
 const initSQL = `
-create table exchange_rates (
+create table if not exists exchange_rates (
 	base text, quote text, rate text, updated_at_ms bigint,
 	primary key (base, quote)
 );
 `
 
-const DEFAULT_MAX_AGE = 60 * 1000
+const DEFAULT_MAX_AGE = 5 * 60 * 1000
 
 func NewCoinAPIRESTClient(token string, maxAge int) (*coinapiRestClient, error) {
-	conn, err := sql.Open("sqlite", ":memory:")
+	conn, err := sql.Open("sqlite", "cache.db")
 	if err != nil {
 		return nil, err
 	}
