@@ -20,11 +20,15 @@ templ PagesIndex(props *PagesIndexProps) {
 							<img src={ *product.ImageUrl } class="position-absolute inset-0 w-full h-full object-cover"/>
 						}
 					</div>
-					<footer class="text-center flex flex-1 flex-col gap-1 items-center justify-center">
+					<footer class="text-center flex flex-1 flex-col gap-1 items-center justify-center text-xs">
 						<span>{ product.Title }</span>
 						<span>&euro;{ product.BasePriceEur.String() }</span>
 						<span>{ fiatToBTC(product.BasePriceEur, props.Rate.Rate) } BTC</span>
-						<button class="bg-blue-600 text-white font-bold px-6 py-2 mt-4 rounded-sm">Add to cart</button>
+						<form action="/cart_items" method="POST">
+							<input type="hidden" name="product_id" value={ product.ID.String() }/>
+							<input type="hidden" name="quantity" value="1"/>
+							<button class="bg-blue-600 text-white font-bold px-6 py-2 mt-4 rounded-sm" type="submit">Add to cart</button>
+						</form>
 					</footer>
 				</article>
 			}

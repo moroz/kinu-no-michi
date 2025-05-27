@@ -11,11 +11,14 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/kinu-no-michi/config"
+	"github.com/moroz/kinu-no-michi/db/queries"
 	"github.com/moroz/kinu-no-michi/handlers"
 	"github.com/moroz/kinu-no-michi/lib/coinapi"
 	"github.com/moroz/kinu-no-michi/lib/cookies"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,33 +51,60 @@ func TestAddProductToCart(t *testing.T) {
 	const ENDPOINT = "/cart_items"
 	const PRODUCT_ID = "019709a2-5c37-73e2-a05b-9ee9f8a470b5"
 
-	t.Run("sets a cookie when called without cookie", func(t *testing.T) {
-		cartsBefore := count("carts")
-		itemsBefore := count("cart_items")
+	cartsBefore := count("carts")
+	itemsBefore := count("cart_items")
 
-		payload := url.Values{
-			"product_id": {PRODUCT_ID},
-			"quantity":   {"1"},
-		}.Encode()
+	payload := url.Values{
+		"product_id": {PRODUCT_ID},
+		"quantity":   {"3"},
+	}.Encode()
 
-		req, err := http.NewRequest("POST", ENDPOINT, bytes.NewBufferString(payload))
-		require.NoError(t, err)
+	req, err := http.NewRequest("POST", ENDPOINT, bytes.NewBufferString(payload))
+	require.NoError(t, err)
 
-		req.Header.Add("Content-Type", CONTENT_TYPE)
+	req.Header.Add("Content-Type", CONTENT_TYPE)
 
-		rr := httptest.NewRecorder()
-		router.ServeHTTP(rr, req)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
 
-		assert.GreaterOrEqual(t, rr.Code, 200)
-		assert.Less(t, rr.Code, 400)
+	assert.GreaterOrEqual(t, rr.Code, 200)
+	assert.Less(t, rr.Code, 400)
 
-		assert.Equal(t, cartsBefore+1, count("carts"))
-		assert.Equal(t, itemsBefore+1, count("cart_items"))
+	assert.Equal(t, cartsBefore+1, count("carts"))
+	assert.Equal(t, itemsBefore+1, count("cart_items"))
 
-		actual := rr.Result().Cookies()
-		assert.Len(t, actual, 1)
+	actual := rr.Result().Cookies()
+	assert.Len(t, actual, 1)
 
-		cookie := actual[0]
-		assert.Equal(t, config.SESSION_COOKIE_NAME, cookie.Name)
+	cookie := actual[0]
+	assert.Equal(t, config.SESSION_COOKIE_NAME, cookie.Name)
+
+	payload = url.Values{
+		"product_id": {PRODUCT_ID},
+		"quantity":   {"2"},
+	}.Encode()
+	req, err = http.NewRequest("POST", ENDPOINT, bytes.NewBufferString(payload))
+	req.Header.Add("Content-Type", CONTENT_TYPE)
+	req.AddCookie(&http.Cookie{
+		Name:     config.SESSION_COOKIE_NAME,
+		Value:    cookie.Value,
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
 	})
+	require.NoError(t, err)
+
+	rr = httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, cartsBefore+1, count("carts"))
+	assert.Equal(t, itemsBefore+1, count("cart_items"))
+
+	var cartID uuid.UUID
+	err = db.QueryRow(context.Background(), "select id from carts order by id desc limit 1").Scan(&cartID)
+	require.NoError(t, err)
+
+	cart, err := queries.New(db).GetCartByID(context.Background(), cartID)
+	assert.Equal(t, decimal.NewFromInt(250), cart.GrandTotal)
+	assert.Equal(t, int64(1), cart.ItemCount)
 }

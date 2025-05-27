@@ -12,6 +12,27 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const getCartByID = `-- name: GetCartByID :one
+select c.id, count(ci.id) item_count, sum(ci.quantity * p.base_price_eur)::decimal grand_total
+from carts c
+join cart_items ci on c.id = ci.cart_id
+join products p on p.id = ci.product_id
+where c.id = $1 group by 1 limit 1
+`
+
+type GetCartByIDRow struct {
+	ID         uuid.UUID
+	ItemCount  int64
+	GrandTotal decimal.Decimal
+}
+
+func (q *Queries) GetCartByID(ctx context.Context, id uuid.UUID) (*GetCartByIDRow, error) {
+	row := q.db.QueryRow(ctx, getCartByID, id)
+	var i GetCartByIDRow
+	err := row.Scan(&i.ID, &i.ItemCount, &i.GrandTotal)
+	return &i, err
+}
+
 const insertCart = `-- name: InsertCart :exec
 insert into carts (id) values ($1)
 `

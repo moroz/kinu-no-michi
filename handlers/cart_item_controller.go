@@ -52,6 +52,10 @@ func (c *cartItemController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if cart, ok := r.Context().Value("cart").(*queries.GetCartByIDRow); ok && cart != nil {
+		params.CartID = &cart.ID
+	}
+
 	item, err := c.srv.AddProductToCart(r.Context(), params)
 	if err != nil {
 		http.Error(w, "Internal Server Error", 500)
@@ -59,7 +63,7 @@ func (c *cartItemController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session := encodeSession(&appSession{
-		CartID: item.CartID,
+		CartID: &item.CartID,
 	})
 
 	http.SetCookie(w, &http.Cookie{

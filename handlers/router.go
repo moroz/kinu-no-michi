@@ -10,16 +10,19 @@ import (
 	"github.com/moroz/kinu-no-michi/lib/cookies"
 )
 
-func Router(db queries.DBTX, rs coinapi.ExchangeRateService, cookieStore cookies.SessionStore) http.Handler {
+func Router(db queries.DBTX, rs coinapi.ExchangeRateService, cs cookies.SessionStore) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
+	r.Use(FetchSession(cs))
+	r.Use(LoadCartFromSession(db))
+
 	pages := PageController(db, rs)
 	r.Get("/", pages.Index)
 
-	cartItem := CartItemController(db, cookieStore)
+	cartItem := CartItemController(db, cs)
 	r.Post("/cart_items", cartItem.Create)
 
 	fs := http.Dir("./assets/dist")

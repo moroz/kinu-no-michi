@@ -12,7 +12,7 @@ func init() {
 }
 
 type appSession struct {
-	CartID uuid.UUID
+	CartID *uuid.UUID
 }
 
 func decodeSession(binary []byte) (*appSession, error) {
