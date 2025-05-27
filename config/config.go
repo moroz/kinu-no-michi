@@ -30,3 +30,5 @@ var DATABASE_URL = MustGetenv("DATABASE_URL")
 var SECRET_KEY_BASE = MustGetenvBase64("SECRET_KEY_BASE")
 
 var COOKIE_HMAC_KEY = argon2.IDKey(SECRET_KEY_BASE, []byte("cookie hmac"), 1, 64*1024, 1, 32)
+
+const SESSION_COOKIE_NAME = "_kinu_no_michi_session"

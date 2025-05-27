@@ -19,6 +19,9 @@ func Router(db queries.DBTX, rs coinapi.ExchangeRateService, cookieStore cookies
 	pages := PageController(db, rs)
 	r.Get("/", pages.Index)
 
+	cartItem := CartItemController(db, cookieStore)
+	r.Post("/cart_items", cartItem.Create)
+
 	fs := http.Dir("./assets/dist")
 	r.Handle("/assets/*", http.StripPrefix("/assets", http.FileServer(fs)))
 

@@ -10,18 +10,15 @@ import (
 	"github.com/moroz/kinu-no-michi/services"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddProductToCart(t *testing.T) {
 	db, err := pgxpool.New(context.Background(), config.MustGetenv("TEST_DATABASE_URL"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	_, err = db.Exec(context.Background(), "truncate carts cascade;")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	srv := services.NewCartService(db)
 
