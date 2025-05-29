@@ -2,7 +2,7 @@ guard-%:
 	@#$(or ${$*}, $(error Environment variable $* is not set))
 
 test: db.test.prepare
-	go test -v ./...
+	go test -p=1 -parallel=1 -count=1 -v ./...
 
 db.test.prepare: guard-TEST_DATABASE guard-TEST_DATABASE_URL
 	createdb ${TEST_DATABASE} || true

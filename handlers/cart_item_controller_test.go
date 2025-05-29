@@ -27,7 +27,7 @@ func TestAddProductToCart(t *testing.T) {
 	db, err := pgxpool.New(context.Background(), config.MustGetenv("TEST_DATABASE_URL"))
 	require.NoError(t, err)
 
-	_, err = db.Exec(context.Background(), "truncate carts cascade;")
+	_, err = db.Exec(context.Background(), "delete from carts")
 	require.NoError(t, err)
 
 	rs := coinapi.NewMockClient(95000)

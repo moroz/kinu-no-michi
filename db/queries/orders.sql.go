@@ -10,23 +10,75 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/moroz/kinu-no-michi/lib/encrypt"
+	"github.com/shopspring/decimal"
 )
 
 const insertOrder = `-- name: InsertOrder :one
-insert into orders (id, email_encrypted) values ($1, $2) returning id, email_encrypted, inserted_at, updated_at
+insert into orders (id, email_encrypted, grand_total_eur, grand_total_btc, exchange_rate) values ($1, $2, $3, $4, $5) returning id, email_encrypted, grand_total_eur, grand_total_btc, exchange_rate, inserted_at, updated_at
 `
 
 type InsertOrderParams struct {
 	ID             uuid.UUID
 	EmailEncrypted encrypt.EncryptedBytes
+	GrandTotalEur  decimal.Decimal
+	GrandTotalBtc  decimal.Decimal
+	ExchangeRate   decimal.Decimal
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg InsertOrderParams) (*Order, error) {
-	row := q.db.QueryRow(ctx, insertOrder, arg.ID, arg.EmailEncrypted)
+	row := q.db.QueryRow(ctx, insertOrder,
+		arg.ID,
+		arg.EmailEncrypted,
+		arg.GrandTotalEur,
+		arg.GrandTotalBtc,
+		arg.ExchangeRate,
+	)
 	var i Order
 	err := row.Scan(
 		&i.ID,
 		&i.EmailEncrypted,
+		&i.GrandTotalEur,
+		&i.GrandTotalBtc,
+		&i.ExchangeRate,
+		&i.InsertedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const insertOrderLineItem = `-- name: InsertOrderLineItem :one
+insert into order_line_items (id, order_id, product_id, quantity, unit_price_eur, subtotal_btc, product_title) values ($1, $2, $3, $4, $5, $6, $7) returning id, order_id, product_id, quantity, unit_price_eur, subtotal_btc, product_title, inserted_at, updated_at
+`
+
+type InsertOrderLineItemParams struct {
+	ID           uuid.UUID
+	OrderID      uuid.UUID
+	ProductID    *uuid.UUID
+	Quantity     decimal.Decimal
+	UnitPriceEur decimal.Decimal
+	SubtotalBtc  decimal.Decimal
+	ProductTitle string
+}
+
+func (q *Queries) InsertOrderLineItem(ctx context.Context, arg InsertOrderLineItemParams) (*OrderLineItem, error) {
+	row := q.db.QueryRow(ctx, insertOrderLineItem,
+		arg.ID,
+		arg.OrderID,
+		arg.ProductID,
+		arg.Quantity,
+		arg.UnitPriceEur,
+		arg.SubtotalBtc,
+		arg.ProductTitle,
+	)
+	var i OrderLineItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.UnitPriceEur,
+		&i.SubtotalBtc,
+		&i.ProductTitle,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 	)

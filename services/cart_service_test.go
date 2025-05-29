@@ -17,9 +17,6 @@ func TestAddProductToCart(t *testing.T) {
 	db, err := pgxpool.New(context.Background(), config.MustGetenv("TEST_DATABASE_URL"))
 	require.NoError(t, err)
 
-	_, err = db.Exec(context.Background(), "truncate carts cascade;")
-	require.NoError(t, err)
-
 	srv := services.NewCartService(db)
 
 	productID, err := uuid.Parse("019709a2-5c37-73e2-a05b-9ee9f8a470b5")
@@ -44,6 +41,9 @@ func TestAddProductToCart(t *testing.T) {
 	}
 
 	t.Run("creates new cart with nil CartID", func(t *testing.T) {
+		_, err = db.Exec(context.Background(), "delete from carts")
+		require.NoError(t, err)
+
 		cartsBefore := countCarts()
 		itemsBefore := countCartItems()
 
@@ -60,6 +60,9 @@ func TestAddProductToCart(t *testing.T) {
 	})
 
 	t.Run("reuses existing cart if CartID is present", func(t *testing.T) {
+		_, err = db.Exec(context.Background(), "delete from carts")
+		require.NoError(t, err)
+
 		cartID, err := uuid.NewV7()
 		assert.NoError(t, err)
 		_, err = db.Exec(context.Background(), "insert into carts (id) values ($1)", cartID)
@@ -81,6 +84,9 @@ func TestAddProductToCart(t *testing.T) {
 	})
 
 	t.Run("reuses cart items with the same product_id", func(t *testing.T) {
+		_, err = db.Exec(context.Background(), "delete from carts")
+		require.NoError(t, err)
+
 		cartsBefore := countCarts()
 		itemsBefore := countCartItems()
 
