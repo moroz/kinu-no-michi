@@ -40,7 +40,7 @@ $csv
 
 select count(*) from products_temp;
 
-truncate products;
+truncate products cascade;
 
 insert into products (id, title, slug, base_price_eur, description, image_url)
 select id, title, handle, price, body, img_src from products_temp;
