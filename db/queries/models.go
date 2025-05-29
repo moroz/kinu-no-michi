@@ -7,6 +7,7 @@ package queries
 import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/moroz/kinu-no-michi/lib/encrypt"
 	"github.com/shopspring/decimal"
 )
 
@@ -23,6 +24,13 @@ type CartItem struct {
 	Quantity   decimal.Decimal
 	InsertedAt pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
+}
+
+type Order struct {
+	ID             uuid.UUID
+	EmailEncrypted encrypt.EncryptedBytes
+	InsertedAt     pgtype.Timestamp
+	UpdatedAt      pgtype.Timestamp
 }
 
 type Product struct {

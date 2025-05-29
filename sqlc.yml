@@ -37,3 +37,8 @@ sql:
               import: "github.com/google/uuid"
               pointer: true
               type: "UUID"
+
+          - column: "orders.email_encrypted"
+            go_type:
+              import: "github.com/moroz/kinu-no-michi/lib/encrypt"
+              type: "EncryptedBytes"
