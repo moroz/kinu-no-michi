@@ -15,3 +15,9 @@ from carts c
 join cart_items ci on c.id = ci.cart_id
 join products p on p.id = ci.product_id
 where c.id = $1 group by 1 limit 1;
+
+-- name: GetCartItemsByCartID :many
+select ci.*, p.title product_title, p.base_price_eur product_base_price, (ci.quantity * p.base_price_eur)::decimal subtotal
+from cart_items ci
+join products p on ci.product_id = p.id
+where ci.cart_id = @cart_id;

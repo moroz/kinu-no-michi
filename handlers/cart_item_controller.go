@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -52,12 +53,13 @@ func (c *cartItemController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if cart, ok := r.Context().Value("cart").(*queries.GetCartByIDRow); ok && cart != nil {
+	if cart, ok := r.Context().Value("cart").(*queries.GetCartByIDRow); ok && cart != nil && cart.ID != uuid.Nil {
 		params.CartID = &cart.ID
 	}
 
 	item, err := c.srv.AddProductToCart(r.Context(), params)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
@@ -75,5 +77,5 @@ func (c *cartItemController) Create(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	w.WriteHeader(204)
+	http.Redirect(w, r, "/", http.StatusFound)
 }

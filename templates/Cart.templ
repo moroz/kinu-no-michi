@@ -1,0 +1,50 @@
+package templates
+
+import "github.com/moroz/kinu-no-michi/db/queries"
+import "github.com/moroz/kinu-no-michi/lib/coinapi"
+
+type CartShowProps struct {
+	CartItems []*queries.GetCartItemsByCartIDRow
+	Rate      *coinapi.ExchangeRate
+}
+
+templ CartShow(props *CartShowProps) {
+	@Layout("Cart") {
+		<div class="container mx-auto">
+			if len(props.CartItems) == 0 {
+				<p>Cart is empty</p>
+			} else {
+				<table class="table-fixed w-full cart">
+					<thead>
+						<th>Product</th>
+						<th>Unit price</th>
+						<th>Quantity</th>
+						<th>Subtotal (EUR)</th>
+						<th>Subtotal (BTC)</th>
+					</thead>
+					<tbody>
+						for _, item := range props.CartItems {
+							<tr>
+								<td>{ item.ProductTitle }</td>
+								<td>&euro;{ item.ProductBasePrice.String() }</td>
+								<td>&times; { item.Quantity.String() }</td>
+								<td>= &euro;{ item.Subtotal.String() }</td>
+								<td>
+									&thickapprox; { fiatToBTC(item.Subtotal, props.Rate.Rate) } BTC
+								</td>
+							</tr>
+						}
+					</tbody>
+					<tfoot>
+						<td colspan="2" class="border-0"></td>
+						<th scope="row">Grand total:</th>
+						<td>= &euro;{ getCartFromContext(ctx).GrandTotal.String() }</td>
+						<td>
+							&thickapprox; { fiatToBTC(getCartFromContext(ctx).GrandTotal, props.Rate.Rate) } BTC
+						</td>
+					</tfoot>
+				</table>
+			}
+		</div>
+	}
+}

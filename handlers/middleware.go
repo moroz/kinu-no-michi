@@ -55,7 +55,7 @@ func findCartBySession(db queries.DBTX, r *http.Request) *queries.GetCartByIDRow
 func LoadCartFromSession(db queries.DBTX) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			var cart *queries.GetCartByIDRow
+			cart := &queries.GetCartByIDRow{}
 
 			if found := findCartBySession(db, r); found != nil {
 				cart = found

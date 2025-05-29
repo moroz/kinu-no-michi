@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -31,6 +32,55 @@ func (q *Queries) GetCartByID(ctx context.Context, id uuid.UUID) (*GetCartByIDRo
 	var i GetCartByIDRow
 	err := row.Scan(&i.ID, &i.ItemCount, &i.GrandTotal)
 	return &i, err
+}
+
+const getCartItemsByCartID = `-- name: GetCartItemsByCartID :many
+select ci.id, ci.cart_id, ci.product_id, ci.quantity, ci.inserted_at, ci.updated_at, p.title product_title, p.base_price_eur product_base_price, (ci.quantity * p.base_price_eur)::decimal subtotal
+from cart_items ci
+join products p on ci.product_id = p.id
+where ci.cart_id = $1
+`
+
+type GetCartItemsByCartIDRow struct {
+	ID               uuid.UUID
+	CartID           uuid.UUID
+	ProductID        uuid.UUID
+	Quantity         decimal.Decimal
+	InsertedAt       pgtype.Timestamp
+	UpdatedAt        pgtype.Timestamp
+	ProductTitle     string
+	ProductBasePrice decimal.Decimal
+	Subtotal         decimal.Decimal
+}
+
+func (q *Queries) GetCartItemsByCartID(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIDRow, error) {
+	rows, err := q.db.Query(ctx, getCartItemsByCartID, cartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetCartItemsByCartIDRow
+	for rows.Next() {
+		var i GetCartItemsByCartIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CartID,
+			&i.ProductID,
+			&i.Quantity,
+			&i.InsertedAt,
+			&i.UpdatedAt,
+			&i.ProductTitle,
+			&i.ProductBasePrice,
+			&i.Subtotal,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertCart = `-- name: InsertCart :exec

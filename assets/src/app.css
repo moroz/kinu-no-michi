@@ -6,3 +6,17 @@
   --color-primary-fg: var(--color-sky-900);
   --color-primary-border: var(--color-sky-300);
 }
+
+:is(table.cart) {
+  @apply my-8;
+
+  th {
+    @apply text-left;
+  }
+
+  th, td {
+    &:not([class]) {
+      @apply py-1 px-2 border;
+    }
+  }
+}
