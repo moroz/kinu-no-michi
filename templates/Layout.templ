@@ -17,26 +17,28 @@ templ RootLayout(title string) {
 templ Layout(title string) {
 	@RootLayout(title) {
 		<div class="flex flex-col min-h-screen">
-			<header class="h-[80px] bg-[salmon] navbar flex items-center justify-between w-full px-4">
-				<h1 class="text-2xl lg:text-4xl">
-					<a href="/">
-						絹の道
-					</a>
-				</h1>
-				<nav>
-					<ul class="flex gap-4">
-						for _, item := range menuItems {
-							<li>
-								<a href={ templ.SafeURL(item.href) }>{ item.label }</a>
-							</li>
-						}
-					</ul>
-				</nav>
+			<header class="h-20 navbar px-4 border-b border-primary-border">
+				<div class="container mx-auto flex items-center justify-between h-20">
+					<h1 class="text-2xl lg:text-4xl">
+						<a href="/">
+							絹の道
+						</a>
+					</h1>
+					<nav>
+						<ul class="flex gap-4">
+							for _, item := range menuItems {
+								<li>
+									<a href={ templ.SafeURL(item.href) }>{ item.label }</a>
+								</li>
+							}
+						</ul>
+					</nav>
+				</div>
 			</header>
 			<main class="flex-1">
 				{ children... }
 			</main>
-			<footer class="footer bg-gray-100 text-center flex flex-col items-center justify-center h-[80px]">
+			<footer class="footer bg-primary-bg text-center flex flex-col items-center justify-center h-[80px] text-primary-fg">
 				<p>&copy; 2025 by Karol Moroz.</p>
 			</footer>
 		</div>

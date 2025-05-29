@@ -12,22 +12,24 @@ type PagesIndexProps struct {
 
 templ PagesIndex(props *PagesIndexProps) {
 	@Layout("Hello") {
-		<div class="grid grid-cols-4 gap-4 my-8 mx-auto w-[1200px]">
+		<div class="grid grid-cols-4 gap-5 my-8 mx-auto container">
 			for _, product := range props.Products {
-				<article class="aspect-[1/1.618] border overflow-hidden rounded-sm flex flex-col">
-					<div class="aspect-square overflow-hidden bg-gray-100 position-relative">
+				<article class="overflow-hidden flex flex-col h-full">
+					<div class="aspect-[300/315] overflow-hidden bg-gray-100 position-relative flex-grow-0">
 						if product.ImageUrl != nil {
 							<img src={ *product.ImageUrl } class="position-absolute inset-0 w-full h-full object-cover"/>
 						}
 					</div>
-					<footer class="text-center flex flex-1 flex-col gap-1 items-center justify-center text-xs">
-						<span>{ product.Title }</span>
-						<span>&euro;{ product.BasePriceEur.String() }</span>
-						<span>{ fiatToBTC(product.BasePriceEur, props.Rate.Rate) } BTC</span>
+					<footer class="text-center flex-1 flex flex-col justify-end text-primary-fg">
+						<span class="py-2 border border-t-0 border-primary-border">{ product.Title }</span>
+						<div class="grid grid-cols-[1fr_1.618fr]">
+							<span class="py-2 border-x border-primary-border">&euro;{ product.BasePriceEur.String() }</span>
+							<span class="py-2 border-r border-primary-border">&thickapprox; { fiatToBTC(product.BasePriceEur, props.Rate.Rate) } BTC</span>
+						</div>
 						<form action="/cart_items" method="POST">
 							<input type="hidden" name="product_id" value={ product.ID.String() }/>
 							<input type="hidden" name="quantity" value="1"/>
-							<button class="bg-blue-600 text-white font-bold px-6 py-2 mt-4 rounded-sm" type="submit">Add to cart</button>
+							<button class="bg-primary-bg w-full text-primary-fg font-bold text-center py-3 text-xl hover:bg-primary-hover-bg transition cursor-pointer" type="submit">Add to cart</button>
 						</form>
 					</footer>
 				</article>

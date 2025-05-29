@@ -1,2 +1,8 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-bg: var(--color-sky-100);
+  --color-primary-hover-bg: var(--color-sky-200);
+  --color-primary-fg: var(--color-sky-900);
+  --color-primary-border: var(--color-sky-300);
+}
