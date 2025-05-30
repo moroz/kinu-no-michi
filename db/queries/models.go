@@ -29,8 +29,22 @@ type CartItem struct {
 type Order struct {
 	ID             uuid.UUID
 	EmailEncrypted encrypt.EncryptedBytes
+	GrandTotalEur  decimal.Decimal
+	GrandTotalBtc  decimal.Decimal
+	ExchangeRate   decimal.Decimal
 	InsertedAt     pgtype.Timestamp
 	UpdatedAt      pgtype.Timestamp
+}
+
+type OrderLineItem struct {
+	ID               uuid.UUID
+	CartID           uuid.UUID
+	ProductID        *uuid.UUID
+	Quantity         decimal.Decimal
+	ProductUnitPrice decimal.Decimal
+	ProductTitle     string
+	InsertedAt       pgtype.Timestamp
+	UpdatedAt        pgtype.Timestamp
 }
 
 type Product struct {

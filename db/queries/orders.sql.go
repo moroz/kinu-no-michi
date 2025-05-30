@@ -10,23 +10,36 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/moroz/kinu-no-michi/lib/encrypt"
+	"github.com/shopspring/decimal"
 )
 
 const insertOrder = `-- name: InsertOrder :one
-insert into orders (id, email_encrypted) values ($1, $2) returning id, email_encrypted, inserted_at, updated_at
+insert into orders (id, email_encrypted, grand_total_eur, grand_total_btc, exchange_rate) values ($1, $2, $3, $4, $5) returning id, email_encrypted, grand_total_eur, grand_total_btc, exchange_rate, inserted_at, updated_at
 `
 
 type InsertOrderParams struct {
 	ID             uuid.UUID
 	EmailEncrypted encrypt.EncryptedBytes
+	GrandTotalEur  decimal.Decimal
+	GrandTotalBtc  decimal.Decimal
+	ExchangeRate   decimal.Decimal
 }
 
 func (q *Queries) InsertOrder(ctx context.Context, arg InsertOrderParams) (*Order, error) {
-	row := q.db.QueryRow(ctx, insertOrder, arg.ID, arg.EmailEncrypted)
+	row := q.db.QueryRow(ctx, insertOrder,
+		arg.ID,
+		arg.EmailEncrypted,
+		arg.GrandTotalEur,
+		arg.GrandTotalBtc,
+		arg.ExchangeRate,
+	)
 	var i Order
 	err := row.Scan(
 		&i.ID,
 		&i.EmailEncrypted,
+		&i.GrandTotalEur,
+		&i.GrandTotalBtc,
+		&i.ExchangeRate,
 		&i.InsertedAt,
 		&i.UpdatedAt,
 	)

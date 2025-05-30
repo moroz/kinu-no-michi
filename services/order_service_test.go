@@ -5,10 +5,13 @@ import (
 	"encoding/base64"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moroz/kinu-no-michi/config"
+	"github.com/moroz/kinu-no-michi/lib/coinapi"
 	"github.com/moroz/kinu-no-michi/lib/encrypt"
 	"github.com/moroz/kinu-no-michi/services"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,12 +28,35 @@ func TestCreateOrder(t *testing.T) {
 	require.NoError(t, err)
 	encrypt.SetProvider(provider)
 
-	srv := services.NewOrderService(db)
+	cs := services.NewCartService(db)
+	item, err := cs.AddProductToCart(context.Background(), &services.AddProductToCartParams{
+		CartID:    nil,
+		ProductID: uuid.MustParse("019709a2-5c37-73e2-a05b-9ee9f8a470b5"),
+		Quantity:  decimal.NewFromInt(2),
+	})
+	assert.NoError(t, err)
 
-	order, err := srv.CreateOrder(context.Background(), "user@example.com")
+	_, err = cs.AddProductToCart(context.Background(), &services.AddProductToCartParams{
+		CartID:    &item.CartID,
+		ProductID: uuid.MustParse("01971efc-d170-7664-9ae8-82f386ff59fe"),
+		Quantity:  decimal.NewFromInt(3),
+	})
+	assert.NoError(t, err)
+
+	rs := coinapi.NewMockClient(100_000)
+	srv := services.NewOrderService(db, rs)
+
+	email := "user@example.com"
+	order, err := srv.CreateOrder(context.Background(), &services.CreateOrderParams{
+		CartID: item.CartID,
+		Email:  email,
+	})
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 	assert.Equal(t, "user@example.com", order.EmailEncrypted.String())
+	assert.Equal(t, "280", order.GrandTotalEur.String())
+	assert.Equal(t, "0.0028", order.GrandTotalBtc.String())
+	assert.Equal(t, "100000", order.ExchangeRate.String())
 
 	var actualEmail []byte
 	err = db.QueryRow(context.Background(), "select email_encrypted from orders where id = $1", order.ID).Scan(&actualEmail)
