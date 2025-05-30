@@ -1,7 +1,6 @@
 package services_test
 
 import (
-	"context"
 	"encoding/base64"
 	"testing"
 
@@ -17,10 +16,10 @@ import (
 )
 
 func TestCreateOrder(t *testing.T) {
-	db, err := pgxpool.New(context.Background(), config.MustGetenv("TEST_DATABASE_URL"))
+	db, err := pgxpool.New(t.Context(), config.MustGetenv("TEST_DATABASE_URL"))
 	require.NoError(t, err)
 
-	_, err = db.Exec(context.Background(), "truncate orders cascade;")
+	_, err = db.Exec(t.Context(), "truncate orders cascade;")
 	require.NoError(t, err)
 
 	var key, _ = base64.StdEncoding.DecodeString("mAcJgVR/M5/OejAQNtbTeIeb+O7AoLuZ2purSckAKuM=")
@@ -29,14 +28,14 @@ func TestCreateOrder(t *testing.T) {
 	encrypt.SetProvider(provider)
 
 	cs := services.NewCartService(db)
-	item, err := cs.AddProductToCart(context.Background(), &services.AddProductToCartParams{
+	item, err := cs.AddProductToCart(t.Context(), &services.AddProductToCartParams{
 		CartID:    nil,
 		ProductID: uuid.MustParse("019709a2-5c37-73e2-a05b-9ee9f8a470b5"),
 		Quantity:  decimal.NewFromInt(2),
 	})
 	assert.NoError(t, err)
 
-	_, err = cs.AddProductToCart(context.Background(), &services.AddProductToCartParams{
+	_, err = cs.AddProductToCart(t.Context(), &services.AddProductToCartParams{
 		CartID:    &item.CartID,
 		ProductID: uuid.MustParse("01971efc-d170-7664-9ae8-82f386ff59fe"),
 		Quantity:  decimal.NewFromInt(3),
@@ -47,7 +46,7 @@ func TestCreateOrder(t *testing.T) {
 	srv := services.NewOrderService(db, rs)
 
 	email := "user@example.com"
-	order, err := srv.CreateOrder(context.Background(), &services.CreateOrderParams{
+	order, err := srv.CreateOrder(t.Context(), &services.CreateOrderParams{
 		CartID: item.CartID,
 		Email:  email,
 	})
@@ -59,7 +58,16 @@ func TestCreateOrder(t *testing.T) {
 	assert.Equal(t, "100000", order.ExchangeRate.String())
 
 	var actualEmail []byte
-	err = db.QueryRow(context.Background(), "select email_encrypted from orders where id = $1", order.ID).Scan(&actualEmail)
+	err = db.QueryRow(t.Context(), "select email_encrypted from orders where id = $1", order.ID).Scan(&actualEmail)
 	assert.NoError(t, err)
 	assert.NotEqual(t, string("user@example.com"), actualEmail)
+
+	var itemCount int
+	err = db.QueryRow(t.Context(), `select count(id) from order_line_items where order_id = $1`, order.ID).Scan(&itemCount)
+	assert.Equal(t, 2, itemCount)
+
+	var exists bool
+	err = db.QueryRow(t.Context(), `select exists (select 1 from carts where id = $1)`, item.CartID).Scan(&exists)
+	assert.NoError(t, err)
+	assert.False(t, exists)
 }

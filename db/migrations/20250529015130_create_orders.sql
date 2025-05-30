@@ -12,17 +12,17 @@ create table orders (
 
 create table order_line_items (
   id uuid primary key,
-  cart_id uuid not null references orders (id) on delete cascade,
+  order_id uuid not null references orders (id) on delete cascade,
   product_id uuid references products (id) on delete set null,
   quantity decimal not null,
   product_unit_price decimal not null,
   product_title text not null,
   inserted_at timestamp(0) not null default (now() at time zone 'utc'),
   updated_at timestamp(0) not null default (now() at time zone 'utc'),
-  unique (cart_id, product_id)
+  unique (order_id, product_id)
 );
 
-create index on order_line_items (cart_id);
+create index on order_line_items (order_id);
 -- +goose StatementEnd
 
 -- +goose Down

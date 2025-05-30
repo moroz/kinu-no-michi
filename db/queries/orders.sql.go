@@ -45,3 +45,28 @@ func (q *Queries) InsertOrder(ctx context.Context, arg InsertOrderParams) (*Orde
 	)
 	return &i, err
 }
+
+const insertOrderLineItem = `-- name: InsertOrderLineItem :exec
+insert into order_line_items (id, order_id, product_id, quantity, product_unit_price, product_title) values ($1, $2, $3, $4, $5, $6)
+`
+
+type InsertOrderLineItemParams struct {
+	ID               uuid.UUID
+	OrderID          uuid.UUID
+	ProductID        *uuid.UUID
+	Quantity         decimal.Decimal
+	ProductUnitPrice decimal.Decimal
+	ProductTitle     string
+}
+
+func (q *Queries) InsertOrderLineItem(ctx context.Context, arg InsertOrderLineItemParams) error {
+	_, err := q.db.Exec(ctx, insertOrderLineItem,
+		arg.ID,
+		arg.OrderID,
+		arg.ProductID,
+		arg.Quantity,
+		arg.ProductUnitPrice,
+		arg.ProductTitle,
+	)
+	return err
+}

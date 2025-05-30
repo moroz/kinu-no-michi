@@ -67,6 +67,35 @@ func (s *OrderService) CreateOrder(ctx context.Context, params *CreateOrderParam
 		return nil, err
 	}
 
+	cartItems, err := queries.New(tx).GetCartItemsByCartID(ctx, params.CartID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range cartItems {
+		id, err := uuid.NewV7()
+		if err != nil {
+			return nil, err
+		}
+
+		err = queries.New(tx).InsertOrderLineItem(ctx, queries.InsertOrderLineItemParams{
+			ID:               id,
+			OrderID:          order.ID,
+			ProductID:        &item.ProductID,
+			Quantity:         item.Quantity,
+			ProductUnitPrice: item.BasePriceEur,
+			ProductTitle:     item.Title,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = queries.New(tx).DeleteCart(ctx, cart.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	tx.Commit(ctx)
 	return order, nil
 }

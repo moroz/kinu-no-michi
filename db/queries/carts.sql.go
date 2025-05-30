@@ -12,6 +12,15 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const deleteCart = `-- name: DeleteCart :exec
+delete from carts where id = $1
+`
+
+func (q *Queries) DeleteCart(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteCart, id)
+	return err
+}
+
 const getCartByID = `-- name: GetCartByID :one
 select c.id, count(ci.id) item_count, sum(ci.quantity * p.base_price_eur)::decimal grand_total
 from carts c
@@ -31,6 +40,47 @@ func (q *Queries) GetCartByID(ctx context.Context, id uuid.UUID) (*GetCartByIDRo
 	var i GetCartByIDRow
 	err := row.Scan(&i.ID, &i.ItemCount, &i.GrandTotal)
 	return &i, err
+}
+
+const getCartItemsByCartID = `-- name: GetCartItemsByCartID :many
+select ci.id, ci.product_id, ci.quantity, p.base_price_eur, p.title
+from cart_items ci
+join products p on ci.product_id = p.id
+where ci.cart_id = $1
+`
+
+type GetCartItemsByCartIDRow struct {
+	ID           uuid.UUID
+	ProductID    uuid.UUID
+	Quantity     decimal.Decimal
+	BasePriceEur decimal.Decimal
+	Title        string
+}
+
+func (q *Queries) GetCartItemsByCartID(ctx context.Context, cartID uuid.UUID) ([]*GetCartItemsByCartIDRow, error) {
+	rows, err := q.db.Query(ctx, getCartItemsByCartID, cartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetCartItemsByCartIDRow
+	for rows.Next() {
+		var i GetCartItemsByCartIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductID,
+			&i.Quantity,
+			&i.BasePriceEur,
+			&i.Title,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertCart = `-- name: InsertCart :exec

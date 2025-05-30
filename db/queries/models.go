@@ -38,7 +38,7 @@ type Order struct {
 
 type OrderLineItem struct {
 	ID               uuid.UUID
-	CartID           uuid.UUID
+	OrderID          uuid.UUID
 	ProductID        *uuid.UUID
 	Quantity         decimal.Decimal
 	ProductUnitPrice decimal.Decimal

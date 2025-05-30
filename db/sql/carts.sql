@@ -15,3 +15,12 @@ from carts c
 join cart_items ci on c.id = ci.cart_id
 join products p on p.id = ci.product_id
 where c.id = $1 group by 1 limit 1;
+
+-- name: GetCartItemsByCartID :many
+select ci.id, ci.product_id, ci.quantity, p.base_price_eur, p.title
+from cart_items ci
+join products p on ci.product_id = p.id
+where ci.cart_id = $1;
+
+-- name: DeleteCart :exec
+delete from carts where id = $1;
