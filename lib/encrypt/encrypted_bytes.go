@@ -27,6 +27,14 @@ func NewEncryptedBytes(b []byte) EncryptedBytes {
 	return EncryptedBytes(b)
 }
 
+func (e EncryptedBytes) String() string {
+	return string(e)
+}
+
+func (e EncryptedBytes) Bytes() []byte {
+	return e[:]
+}
+
 // Value implements driver.Valuer interface
 func (e EncryptedBytes) Value() (driver.Value, error) {
 	if len(e) == 0 {

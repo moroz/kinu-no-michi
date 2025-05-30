@@ -30,4 +30,10 @@ func TestCreateOrder(t *testing.T) {
 	order, err := srv.CreateOrder(context.Background(), "user@example.com")
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
+	assert.Equal(t, "user@example.com", order.EmailEncrypted.String())
+
+	var actualEmail []byte
+	err = db.QueryRow(context.Background(), "select email_encrypted from orders where id = $1", order.ID).Scan(&actualEmail)
+	assert.NoError(t, err)
+	assert.NotEqual(t, string("user@example.com"), actualEmail)
 }
