@@ -1,0 +1,14 @@
+{
+  "jsonrpc": "1.0",
+  "id": "importdesc_test",
+  "method": "importdescriptors",
+  "params": [
+    [
+      {
+        "desc": "addr(bcrt1qnwzr5w309sg08r8h3fq5838t54k8y76t5vsxjq)#svshfcwq",
+        "timestamp": "now",
+        "watchonly": true
+      }
+    ]
+  ]
+}

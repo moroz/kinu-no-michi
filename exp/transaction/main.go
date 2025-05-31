@@ -11,42 +11,10 @@ import (
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/moroz/kinu-no-michi/config"
-	"golang.org/x/crypto/argon2"
 )
 
-type ImportDescriptorsPayload struct {
-}
-
-func deriveKey(parent *hdkeychain.ExtendedKey, path ...uint32) (key *hdkeychain.ExtendedKey, err error) {
-	key = parent
-	for _, i := range path {
-		key, err = key.Derive(i)
-		if err != nil {
-			return
-		}
-	}
-	return
-}
-
-func initRpcClient() *rpcclient.Client {
-	cfg := &rpcclient.ConnConfig{
-		User:         "username",
-		Pass:         "password",
-		HTTPPostMode: true,
-		Host:         "localhost:18443",
-		DisableTLS:   true,
-	}
-
-	client, err := rpcclient.New(cfg, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return client
-}
-
 func main() {
-	seed := argon2.IDKey(config.SECRET_KEY_BASE, []byte("seed"), 2, 46*1024, 1, 32)
+	seed := deriveSeed(config.SECRET_KEY_BASE, []byte("seed"))
 	master, err := hdkeychain.NewMaster(seed, &chaincfg.RegressionNetParams)
 	if err != nil {
 		log.Fatal(err)
@@ -71,21 +39,45 @@ func main() {
 
 	fmt.Println(addr.EncodeAddress())
 
-	client := initRpcClient()
+	client, err := NewClient("username", "password", "127.0.0.1:18443")
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Shutdown()
 
 	_, _ = client.CreateWallet("watchonly", rpcclient.WithCreateWalletDisablePrivateKeys())
 
+	descInfo, err := client.GetDescriptorInfo(fmt.Sprintf("addr(%s)", addr.EncodeAddress()))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client.SendCmd(ImportDescriptorsCmd{
-		ImportDescriptorsItem{
-			Desc:      fmt.Sprintf("addr(%s)", addr.EncodeAddress()),
-			Timestamp: time.Now().Add(-2 * time.Hour).Unix(),
+	fmt.Println(descInfo.Descriptor)
+
+	resp, err := client.ImportDescriptor(&ImportDescriptorsItem{
+		Desc: descInfo.Descriptor,
+		Timestamp: ImportDescriptorsTimestamp{
+			Timestamp: time.Now().Add(-2 * time.Hour),
 		},
+		Label: addr.EncodeAddress(),
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(resp))
+
+	unspent, err := client.ListUnspent()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%#v\n", unspent)
+
+	// client.SendCmd(ImportDescriptorsCmd{
+	// 	ImportDescriptorsItem{
+	// 		Desc:      fmt.Sprintf("addr(%s)", addr.EncodeAddress()),
+	// 		Timestamp: time.Now().Add(-2 * time.Hour).Unix(),
+	// 	},
+	// })
 	// blockCount, err := client.GetBlockCount()
 	// if err != nil {
 	// 	log.Fatal(err)
