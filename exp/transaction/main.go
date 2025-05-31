@@ -101,4 +101,21 @@ func main() {
 	var buf bytes.Buffer
 	msgTx.Serialize(&buf)
 	fmt.Printf("%X\n", buf.Bytes())
+
+	_, err = client.DecodeRawTransaction(buf.Bytes())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := client.ValidateTransaction(msgTx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(result))
+
+	_, err = client.SendRawTransaction(msgTx, 5)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

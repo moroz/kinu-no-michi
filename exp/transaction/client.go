@@ -12,6 +12,8 @@ import (
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/btcsuite/btcd/wire"
+	"github.com/shopspring/decimal"
 )
 
 type Client struct {
@@ -135,4 +137,19 @@ func (c *Client) ImportSegWitAddress(address string) ([]byte, error) {
 		},
 		Label: address,
 	})
+}
+
+func (c *Client) ValidateTransaction(tx *wire.MsgTx) ([]byte, error) {
+	var buf bytes.Buffer
+	tx.Serialize(&buf)
+	hex := hex.EncodeToString(buf.Bytes())
+	return c.SendRawCmd("testmempoolaccept", []string{hex})
+}
+
+func (c *Client) SendRawTransaction(tx *wire.MsgTx, maxFeeRate int64) ([]byte, error) {
+	var buf bytes.Buffer
+	tx.Serialize(&buf)
+	hex := hex.EncodeToString(buf.Bytes())
+	rate := decimal.NewFromInt(maxFeeRate).Div(decimal.NewFromInt(1e5)).String()
+	return c.SendRawCmd("sendrawtransaction", hex, rate)
 }
