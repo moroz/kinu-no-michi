@@ -5,10 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
 
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/rpcclient"
 )
 
@@ -62,7 +64,7 @@ func NewClient(username, password, host string) (*Client, error) {
 	return &Client{rpc, username, password, host}, nil
 }
 
-func (c *Client) SendRawCmd(method string, params []any) ([]byte, error) {
+func (c *Client) SendRawCmd(method string, params ...any) ([]byte, error) {
 	var id = make([]byte, 4)
 	rand.Read(id)
 
@@ -97,5 +99,40 @@ func (c *Client) ImportDescriptor(params *ImportDescriptorsItem) ([]byte, error)
 }
 
 func (c *Client) ImportDescriptors(items []*ImportDescriptorsItem) ([]byte, error) {
-	return c.SendRawCmd("importdescriptors", []any{items})
+	return c.SendRawCmd("importdescriptors", items)
+}
+
+type GetRawTransactionWithBlockResult struct {
+	Result btcjson.TxRawResult
+	Err    error
+}
+
+func (c *Client) GetRawTransactionWithBlock(txId, blockHash string) (*btcjson.TxRawResult, error) {
+	bytes, err := c.SendRawCmd("getrawtransaction", txId, true, blockHash)
+	if err != nil {
+		return nil, err
+	}
+
+	var result GetRawTransactionWithBlockResult
+	err = json.Unmarshal(bytes, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result.Result, nil
+}
+
+func (c *Client) ImportSegWitAddress(address string) ([]byte, error) {
+	descInfo, err := c.GetDescriptorInfo(fmt.Sprintf("addr(%s)", address))
+	if err != nil {
+		return nil, err
+	}
+
+	return c.ImportDescriptor(&ImportDescriptorsItem{
+		Desc: descInfo.Descriptor,
+		Timestamp: ImportDescriptorsTimestamp{
+			Timestamp: time.Now().Add(-2 * time.Hour),
+		},
+		Label: address,
+	})
 }
