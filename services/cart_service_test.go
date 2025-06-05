@@ -48,7 +48,7 @@ func TestAddProductToCart(t *testing.T) {
 		itemsBefore := countCartItems()
 
 		_, err := srv.AddProductToCart(context.Background(), &services.AddProductToCartParams{
-			CartID:    nil,
+			CartID:    uuid.Nil,
 			ProductID: productID,
 			Quantity:  decimal.NewFromInt(1),
 		})
@@ -69,7 +69,7 @@ func TestAddProductToCart(t *testing.T) {
 		itemsBefore := countCartItems()
 
 		item, err := srv.AddProductToCart(context.Background(), &services.AddProductToCartParams{
-			CartID:    &cartID,
+			CartID:    cartID,
 			ProductID: productID,
 			Quantity:  decimal.NewFromInt(1),
 		})
@@ -85,7 +85,7 @@ func TestAddProductToCart(t *testing.T) {
 		itemsBefore := countCartItems()
 
 		item, err := srv.AddProductToCart(context.Background(), &services.AddProductToCartParams{
-			CartID:    nil,
+			CartID:    uuid.Nil,
 			ProductID: productID,
 			Quantity:  decimal.NewFromInt(2),
 		})
@@ -95,7 +95,7 @@ func TestAddProductToCart(t *testing.T) {
 		assert.Equal(t, itemsBefore+1, countCartItems())
 
 		item, err = srv.AddProductToCart(context.Background(), &services.AddProductToCartParams{
-			CartID:    &item.CartID,
+			CartID:    item.CartID,
 			ProductID: productID,
 			Quantity:  decimal.NewFromInt(3),
 		})

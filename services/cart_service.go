@@ -19,7 +19,7 @@ func NewCartService(db queries.DBTX) *CartService {
 }
 
 type AddProductToCartParams struct {
-	CartID    *uuid.UUID
+	CartID    uuid.UUID
 	ProductID uuid.UUID
 	Quantity  decimal.Decimal
 }
@@ -31,12 +31,12 @@ func (s *CartService) AddProductToCart(ctx context.Context, params *AddProductTo
 	}
 	defer tx.Rollback(ctx)
 
-	if params.CartID == nil {
+	if params.CartID == uuid.Nil {
 		id, err := uuid.NewV7()
 		if err != nil {
 			return nil, err
 		}
-		params.CartID = &id
+		params.CartID = id
 
 		err = queries.New(s.db).InsertCart(ctx, id)
 		if err != nil {
@@ -50,7 +50,7 @@ func (s *CartService) AddProductToCart(ctx context.Context, params *AddProductTo
 	}
 	item, err := queries.New(s.db).InsertCartItem(ctx, queries.InsertCartItemParams{
 		ID:        id,
-		CartID:    *params.CartID,
+		CartID:    params.CartID,
 		ProductID: params.ProductID,
 		Quantity:  params.Quantity,
 	})

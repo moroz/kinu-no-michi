@@ -14,26 +14,26 @@ templ PagesIndex(props *PagesIndexProps) {
 	@Layout("Hello") {
 		<div class="grid grid-cols-4 gap-8 my-8 container mx-auto">
 			for _, product := range props.Products {
-				<article class="overflow-hidden flex flex-col text-blue-900 aspect-[3/4]">
+				<article class="overflow-hidden flex flex-col text-blue-900 aspect-[3/4] product-card">
 					<div class="aspect-square overflow-hidden bg-gray-100 position-relative">
 						if product.ImageUrl != nil {
 							<img src={ *product.ImageUrl } class="position-absolute inset-0 w-full h-full object-cover"/>
 						}
 					</div>
-					<footer class="text-center items-center justify-center border-x border-b grid grid-cols-[1fr_1.618fr] grid-rows-3 border-blue-600">
-						<div class="flex col-span-full border-b border-blue-600 h-full items-center justify-center text-center">
+					<footer class="text-center grid grid-cols-[1fr_1.618fr] grid-rows-3 border-blue-600">
+						<div class="cell col-span-full border-b border-x">
 							<span>{ product.Title }</span>
 						</div>
-						<div class="flex h-full items-center justify-center text-center border-r border-blue-600">
+						<div class="cell border-x">
 							<span>&euro;{ product.BasePriceEur.String() }</span>
 						</div>
-						<div class="flex h-full items-center justify-center text-center">
+						<div class="cell border-r">
 							<span>{ fiatToBTC(product.BasePriceEur, props.Rate.Rate) } BTC</span>
 						</div>
 						<form action="/cart_items" method="POST" class="col-span-full">
 							<input type="hidden" name="product_id" value={ product.ID.String() }/>
 							<input type="hidden" name="quantity" value="1"/>
-							<button class="bg-blue-900 text-white font-bold px-6 py-2 w-full" type="submit">Add to cart</button>
+							<button class="bg-blue-900 text-white font-bold px-6 py-2 w-full hover:bg-blue-800 transition cursor-pointer" type="submit">Add to cart</button>
 						</form>
 					</footer>
 				</article>

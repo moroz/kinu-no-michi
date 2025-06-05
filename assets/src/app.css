@@ -1,2 +1,11 @@
 @import "tailwindcss";
 
+:is(.product-card) {
+  footer {
+    @apply text-center;
+  }
+
+  .cell {
+    @apply flex h-full items-center justify-center text-center border-blue-900;
+  }
+}

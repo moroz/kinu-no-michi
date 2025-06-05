@@ -1,6 +1,11 @@
 package templates
 
-import "github.com/shopspring/decimal"
+import (
+	"context"
+
+	"github.com/moroz/kinu-no-michi/db/queries"
+	"github.com/shopspring/decimal"
+)
 
 type menuItem struct {
 	label string
@@ -9,13 +14,12 @@ type menuItem struct {
 
 var menuItems = []menuItem{
 	{"Home", "/"},
-	{"Fruit", "/fruit"},
-	{"Vegetables", "/vegetables"},
-	{"Books", "/books"},
-	{"Firearms", "/firearms"},
-	{"Cosmetics", "/cosmetics"},
 }
 
 func fiatToBTC(fiat, rate decimal.Decimal) string {
 	return fiat.Div(rate).Round(8).String()
+}
+
+func getCartFromContext(ctx context.Context) *queries.GetCartByIDRow {
+	return ctx.Value("cart").(*queries.GetCartByIDRow)
 }

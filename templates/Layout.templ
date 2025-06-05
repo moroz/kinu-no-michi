@@ -17,23 +17,28 @@ templ RootLayout(title string) {
 templ Layout(title string) {
 	@RootLayout(title) {
 		<div class="flex flex-col min-h-screen">
-			<header class="h-[80px] bg-[salmon] navbar flex items-center justify-between w-full px-4">
-				<h1 class="text-2xl lg:text-4xl">
-					<a href="/">
-						絹の道
-					</a>
-				</h1>
-				<nav>
-					<ul class="flex gap-4">
-						for _, item := range menuItems {
+			<header class="px-4 border-b border-blue-600 bg-white fixed inset-0 bottom-[unset]">
+				<div class="container mx-auto navbar flex items-center justify-between h-[80px]">
+					<h1 class="text-2xl lg:text-4xl">
+						<a href="/">
+							絹の道
+						</a>
+					</h1>
+					<nav>
+						<ul class="flex gap-4">
+							for _, item := range menuItems {
+								<li>
+									<a href={ templ.SafeURL(item.href) }>{ item.label }</a>
+								</li>
+							}
 							<li>
-								<a href={ templ.SafeURL(item.href) }>{ item.label }</a>
+								<a href="/cart">Cart ({ getCartFromContext(ctx).ItemCount })</a>
 							</li>
-						}
-					</ul>
-				</nav>
+						</ul>
+					</nav>
+				</div>
 			</header>
-			<main class="flex-1">
+			<main class="flex-1 pt-[80px]">
 				{ children... }
 			</main>
 			<footer class="footer bg-gray-100 text-center flex flex-col items-center justify-center h-[80px]">
